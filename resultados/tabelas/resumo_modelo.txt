@@ -1,0 +1,11 @@
+RESUMO DO MODELO DE REGRESSÃO LINEAR
+=============================================
+Variável independente (X): horas_irrigacao
+Variável dependente (Y):   area_irrigada_angulo
+Registros de treino:       239
+Registros de teste:        60
+Coeficiente angular:       66.6666666667
+Intercepto:                1.8189894035e-12
+R² treino:                 1.0000000000
+R² teste:                  1.0000000000
+Equação:                   Área irrigada por ângulo = 66,6667 × Horas de irrigação + (1,818989 × 10⁻¹²)

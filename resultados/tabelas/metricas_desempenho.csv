@@ -1,0 +1,7 @@
+﻿metrica;valor;descricao
+MSE;6,894248829364492e-24;Erro quadrático médio
+MAE;2,4310035466138894e-12;Erro absoluto médio
+RMSE;2,6256901624838546e-12;Raiz do erro quadrático médio
+R²;1,0;Coeficiente de determinação
+MAPE (%);5,312404520020776e-14;Erro percentual absoluto médio
+Erro absoluto máximo;3,637978807091713e-12;Maior erro absoluto no conjunto de teste

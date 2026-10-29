@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sistema de Análise de Irrigação — Relatório</title>
+<style>
+  :root { --verde: #1b7f4d; --verde-claro: #cfe3cf; --dourado: #e09f3e; }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    max-width: 980px; margin: 40px auto; padding: 0 24px;
+    color: #1f2d1f; line-height: 1.65; background: #fff;
+  }
+  h1 { color: var(--verde); border-bottom: 3px solid var(--verde); padding-bottom: 10px; }
+  h2 { color: var(--verde); margin-top: 2.2em; border-bottom: 1px solid var(--verde-claro); padding-bottom: 4px; }
+  h3 { color: #2f5d3a; margin-top: 1.6em; }
+  table { border-collapse: collapse; width: 100%; margin: 1.1em 0; font-size: 0.92em; }
+  th { background: var(--verde); color: #fff; padding: 8px 10px; text-align: left; }
+  td { border: 1px solid #d9e6d9; padding: 7px 10px; vertical-align: top; }
+  tr:nth-child(even) td { background: #f6faf6; }
+  img { max-width: 100%; height: auto; display: block; margin: 1.4em auto; border: 1px solid #e2ece2; border-radius: 6px; }
+  blockquote { border-left: 4px solid var(--dourado); background: #fff8ec; margin: 1.2em 0; padding: 0.8em 1em; }
+  code { background: #f1f5f1; padding: 2px 5px; border-radius: 3px; font-size: 0.92em; }
+  hr { border: 0; border-top: 1px solid #e2ece2; margin: 2em 0; }
+  @media print {
+    body { margin: 0; max-width: none; font-size: 10pt; }
+    table { font-size: 8pt; }
+    th, td { padding: 4px 6px; }
+    h2 { page-break-after: avoid; }
+    img, table, blockquote { page-break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<h1>Sistema de Análise de Irrigação — Relatório</h1>
+<p><strong>Data da análise:</strong> 29/10/2026<br />
+<strong>Base de dados:</strong> <code>Arquivos/dados_de_irrigacao.csv</code> — 299 registros e 3 variáveis<br />
+<strong>Modelo:</strong> regressão linear simples<br />
+<strong>Variável independente (X):</strong> horas de irrigação<br />
+<strong>Variável dependente (Y):</strong> área irrigada por ângulo</p>
+<hr />
+<h2>Sumário executivo</h2>
+<p>A base apresenta <strong>299 registros completos</strong>, sem valores ausentes, duplicatas ou valores negativos. As três variáveis têm correlação linear de <strong>1,0000</strong>, e o modelo de regressão linear obteve <strong>R² = 1,000000</strong> no conjunto de teste, com <strong>MSE = 6,8942 × 10⁻²⁴</strong> e <strong>MAE = 2,4310 × 10⁻¹²</strong>.</p>
+<p>A equação ajustada é:</p>
+<blockquote>
+<p><strong>Área irrigada por ângulo = 66,6667 × Horas de irrigação + (1,818989 × 10⁻¹²)</strong></p>
+</blockquote>
+<p>Para <strong>15 horas de irrigação</strong>, a previsão é <strong>1.000,00</strong> de área irrigada por ângulo.</p>
+<blockquote>
+<p><strong>Achado central:</strong> a relação entre horas de irrigação e área irrigada por ângulo é <strong>exatamente linear</strong> nesta base (Y ≈ 66,6667·X). Os resíduos ficam na ordem de 10⁻¹², ou seja, são ruído de ponto flutuante, e não uma distribuição estatística real. Isso indica que a base é <strong>determinística/simulada</strong>; o modelo é exato para estes dados, mas essa exatidão <strong>não deve ser extrapolada automaticamente para o campo</strong>, onde há variabilidade climática, do solo, da uniformidade de aplicação e de medição.</p>
+</blockquote>
+<hr />
+<h2>1. Carregamento e qualidade dos dados</h2>
+<ul>
+<li><strong>Registros:</strong> 299</li>
+<li><strong>Colunas:</strong> Horas de irrigação, Área irrigada, Área irrigada por ângulo</li>
+<li><strong>Valores ausentes:</strong> 0</li>
+<li><strong>Linhas duplicadas:</strong> 0</li>
+<li><strong>Valores negativos:</strong> 0</li>
+</ul>
+<p>A base está pronta para análise, sem necessidade de imputação ou remoção de registros.</p>
+<hr />
+<h2>2. Estatísticas descritivas</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Variável</th>
+<th style="text-align: right;">N</th>
+<th style="text-align: left;">Média</th>
+<th style="text-align: left;">Desvio-padrão</th>
+<th style="text-align: left;">Mínimo</th>
+<th style="text-align: left;">Q1</th>
+<th style="text-align: left;">Mediana</th>
+<th style="text-align: left;">Q3</th>
+<th style="text-align: left;">Máximo</th>
+<th style="text-align: left;">CV (%)</th>
+<th style="text-align: left;">Assimetria</th>
+<th style="text-align: left;">Curtose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Horas de irrigação</td>
+<td style="text-align: right;">299</td>
+<td style="text-align: left;">150,0000</td>
+<td style="text-align: left;">86,4581</td>
+<td style="text-align: left;">1,0000</td>
+<td style="text-align: left;">75,5000</td>
+<td style="text-align: left;">150,0000</td>
+<td style="text-align: left;">224,5000</td>
+<td style="text-align: left;">299,0000</td>
+<td style="text-align: left;">57,6387</td>
+<td style="text-align: left;">0,0000</td>
+<td style="text-align: left;">-1,2000</td>
+</tr>
+<tr>
+<td style="text-align: left;">Área irrigada</td>
+<td style="text-align: right;">299</td>
+<td style="text-align: left;">15.000,0000</td>
+<td style="text-align: left;">8.645,8082</td>
+<td style="text-align: left;">100,0000</td>
+<td style="text-align: left;">7.550,0000</td>
+<td style="text-align: left;">15.000,0000</td>
+<td style="text-align: left;">22.450,0000</td>
+<td style="text-align: left;">29.900,0000</td>
+<td style="text-align: left;">57,6387</td>
+<td style="text-align: left;">0,0000</td>
+<td style="text-align: left;">-1,2000</td>
+</tr>
+<tr>
+<td style="text-align: left;">Área irrigada por ângulo</td>
+<td style="text-align: right;">299</td>
+<td style="text-align: left;">10.000,0000</td>
+<td style="text-align: left;">5.763,8722</td>
+<td style="text-align: left;">66,6667</td>
+<td style="text-align: left;">5.033,3333</td>
+<td style="text-align: left;">10.000,0000</td>
+<td style="text-align: left;">14.966,6667</td>
+<td style="text-align: left;">19.933,3333</td>
+<td style="text-align: left;">57,6387</td>
+<td style="text-align: left;">1,5872 × 10⁻¹⁵</td>
+<td style="text-align: left;">-1,2000</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Leitura:</strong> as variáveis crescem de forma perfeitamente proporcional. A área irrigada é exatamente 100 vezes as horas de irrigação, e a área irrigada por ângulo é exatamente 2/3 da área irrigada. O coeficiente de variação é alto porque a amplitude é grande (1 a 299 horas), não porque haja dispersão em torno da tendência.</p>
+<hr />
+<h2>3. Análise gráfica</h2>
+<h3>3.1 Horas de irrigação × Área irrigada</h3>
+<p><img alt="Dispersão entre horas de irrigação e área irrigada" src="figuras/01_dispersao_horas_area.png" /></p>
+<h3>3.2 Horas de irrigação × Área irrigada por ângulo</h3>
+<p><img alt="Dispersão entre horas de irrigação e área irrigada por ângulo" src="figuras/02_dispersao_horas_area_angulo.png" /></p>
+<h3>3.3 Área irrigada × Área irrigada por ângulo</h3>
+<p><img alt="Dispersão entre área irrigada e área irrigada por ângulo" src="figuras/03_dispersao_area_area_angulo.png" /></p>
+<p>Os três gráficos mostram pontos alinhados sobre uma reta, sem nuvem de dispersão ou outliers. Isso é consistente com uma base gerada por uma regra matemática fixa.</p>
+<hr />
+<h2>4. Correlação entre as variáveis</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Variável</th>
+<th style="text-align: left;">Horas de irrigação</th>
+<th style="text-align: left;">Área irrigada</th>
+<th style="text-align: left;">Área irrigada por ângulo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Horas de irrigação</td>
+<td style="text-align: left;">1,0000</td>
+<td style="text-align: left;">1,0000</td>
+<td style="text-align: left;">1,0000</td>
+</tr>
+<tr>
+<td style="text-align: left;">Área irrigada</td>
+<td style="text-align: left;">1,0000</td>
+<td style="text-align: left;">1,0000</td>
+<td style="text-align: left;">1,0000</td>
+</tr>
+<tr>
+<td style="text-align: left;">Área irrigada por ângulo</td>
+<td style="text-align: left;">1,0000</td>
+<td style="text-align: left;">1,0000</td>
+<td style="text-align: left;">1,0000</td>
+</tr>
+</tbody>
+</table>
+<p>As correlações de Pearson e de Spearman são iguais a 1,0000 entre todos os pares, indicando associação linear positiva perfeita. Do ponto de vista prático, isso significa que as três variáveis carregam praticamente a mesma informação: <strong>horas de irrigação</strong> é suficiente para explicar a área irrigada por ângulo, e usar <code>área irrigada</code> como preditora adicional seria redundante (multicolinearidade perfeita).</p>
+<p><img alt="Mapa de calor das correlações" src="figuras/04_mapa_calor_correlacao.png" /></p>
+<hr />
+<h2>5. Divisão treino/teste e modelo</h2>
+<ul>
+<li><strong>Treino:</strong> 239 registros (80%)</li>
+<li><strong>Teste:</strong> 60 registros (20%)</li>
+<li><strong>Semente aleatória:</strong> 42</li>
+</ul>
+<p><strong>Equação da reta:</strong></p>
+<blockquote>
+<p><strong>Área irrigada por ângulo = 66,6667 × Horas de irrigação + (1,818989 × 10⁻¹²)</strong></p>
+</blockquote>
+<p>Coeficiente angular: <strong>66,666667</strong><br />
+Intercepto: <strong>1,818989 × 10⁻¹²</strong><br />
+R² treino: <strong>1,000000</strong><br />
+R² teste: <strong>1,000000</strong></p>
+<p>O coeficiente angular indica que cada hora adicional de irrigação está associada a um aumento de aproximadamente <strong>66,67</strong> na área irrigada por ângulo. O intercepto é numericamente desprezível (≈ 10⁻¹²), como esperado em uma relação proporcional.</p>
+<hr />
+<h2>6. Métricas de desempenho</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Métrica</th>
+<th style="text-align: left;">Valor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">MSE</td>
+<td style="text-align: left;">6,8942 × 10⁻²⁴</td>
+</tr>
+<tr>
+<td style="text-align: left;">MAE</td>
+<td style="text-align: left;">2,4310 × 10⁻¹²</td>
+</tr>
+<tr>
+<td style="text-align: left;">RMSE</td>
+<td style="text-align: left;">2,6257 × 10⁻¹²</td>
+</tr>
+<tr>
+<td style="text-align: left;">R²</td>
+<td style="text-align: left;">1,0000</td>
+</tr>
+<tr>
+<td style="text-align: left;">MAPE (%)</td>
+<td style="text-align: left;">5,3124 × 10⁻¹⁴</td>
+</tr>
+<tr>
+<td style="text-align: left;">Erro absoluto máximo</td>
+<td style="text-align: left;">3,6380 × 10⁻¹²</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Leitura:</strong> MSE e MAE são praticamente zero. O R² é 1,000000, ou seja, o modelo explica toda a variabilidade observada. O MAPE é desprezível. Esses resultados confirmam um ajuste perfeito, mas devem ser interpretados com cautela: quando os dados são determinísticos, não há erro aleatório para o modelo aprender/capturar, e as métricas não informam como o modelo se comportaria em dados reais.</p>
+<p><img alt="Valores reais versus preditos" src="figuras/05_reais_vs_preditos.png" /></p>
+<hr />
+<h2>7. Análise dos resíduos</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Métrica</th>
+<th style="text-align: left;">Valor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Média dos resíduos</td>
+<td style="text-align: left;">-2,4310 × 10⁻¹²</td>
+</tr>
+<tr>
+<td style="text-align: left;">Desvio-padrão dos resíduos</td>
+<td style="text-align: left;">1,0006 × 10⁻¹²</td>
+</tr>
+<tr>
+<td style="text-align: left;">Resíduo mínimo</td>
+<td style="text-align: left;">-3,6380 × 10⁻¹²</td>
+</tr>
+<tr>
+<td style="text-align: left;">Resíduo máximo</td>
+<td style="text-align: left;">0,0000</td>
+</tr>
+<tr>
+<td style="text-align: left;">Soma dos resíduos</td>
+<td style="text-align: left;">-1,4586 × 10⁻¹⁰</td>
+</tr>
+<tr>
+<td style="text-align: left;">Amplitude</td>
+<td style="text-align: left;">3,6380 × 10⁻¹²</td>
+</tr>
+</tbody>
+</table>
+<p>Os resíduos variam apenas entre -3,638 × 10⁻¹² e 0,000, com desvio-padrão de 1,001 × 10⁻¹². Essa ordem de grandeza (10⁻¹²) corresponde ao limite de precisão de números de ponto flutuante, não a erro de medição agrícola.</p>
+<p><img alt="Resíduos versus valores preditos" src="figuras/06_residuos_vs_preditos.png" /></p>
+<p><img alt="Histograma dos resíduos" src="figuras/07_histograma_residuos.png" /></p>
+<p>Não há padrão sistemático nos resíduos: eles são essencialmente zero. Em um conjunto real, esperaríamos resíduos distribuídos em torno de zero, com dispersão aproximadamente constante (homocedasticidade). Aqui, a variabilidade é inexistente em escala prática.</p>
+<hr />
+<h2>8. Normalidade dos resíduos</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Teste</th>
+<th style="text-align: left;">Estatística</th>
+<th style="text-align: left;">p-valor</th>
+<th style="text-align: left;">Decisão</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Shapiro-Wilk</td>
+<td style="text-align: left;">0,8437</td>
+<td style="text-align: left;">1,9963 × 10⁻⁶</td>
+<td style="text-align: left;">Rejeita H₀ (não normal)</td>
+</tr>
+<tr>
+<td style="text-align: left;">D'Agostino-Pearson</td>
+<td style="text-align: left;">3,3573</td>
+<td style="text-align: left;">0,1866</td>
+<td style="text-align: left;">Não rejeita H₀ (compatível com normal)</td>
+</tr>
+<tr>
+<td style="text-align: left;">Jarque-Bera</td>
+<td style="text-align: left;">2,7575</td>
+<td style="text-align: left;">0,2519</td>
+<td style="text-align: left;">Não rejeita H₀ (compatível com normal)</td>
+</tr>
+</tbody>
+</table>
+<p><img alt="Gráfico Q-Q dos resíduos" src="figuras/08_qq_plot_residuos.png" /></p>
+<p><strong>Interpretação:</strong> os testes entram em conflito porque os resíduos são <strong>numericamente degenerados</strong> (quase todos iguais a zero, com poucos valores distintos de 10⁻¹²). O Shapiro-Wilk rejeita a normalidade, enquanto o D'Agostino-Pearson não rejeita — um comportamento típico de dados quantizados, não de uma distribuição contínua real. Portanto, <strong>não é possível concluir que os resíduos sejam normais ou não</strong>; o teste de normalidade é inadequado para esta base. Em dados reais, essa etapa deveria ser repetida com resíduos em escala mensurável e, se necessário, com transformações ou modelos robustos.</p>
+<hr />
+<h2>9. Predições</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">Horas de irrigação</th>
+<th style="text-align: left;">Área por ângulo prevista</th>
+<th style="text-align: left;">Destaque</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">10</td>
+<td style="text-align: left;">666,67</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: right;">15</td>
+<td style="text-align: left;">1.000,00</td>
+<td style="text-align: left;">exemplo da checklist</td>
+</tr>
+<tr>
+<td style="text-align: right;">20</td>
+<td style="text-align: left;">1.333,33</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: right;">24</td>
+<td style="text-align: left;">1.600,00</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: right;">48</td>
+<td style="text-align: left;">3.200,00</td>
+<td style="text-align: left;"></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Exemplo da checklist:</strong> para <strong>15 horas de irrigação</strong>, a área irrigada por ângulo prevista é <strong>1.000,00</strong>.</p>
+<p><img alt="Previsões do modelo" src="figuras/09_predicoes.png" /></p>
+<hr />
+<h2>10. Conclusões e recomendações</h2>
+<ol>
+<li><strong>Relação identificada:</strong> a área irrigada por ângulo é uma função linear exata das horas de irrigação: <code>Y = 66,6667·X + (1,818989 × 10⁻¹²)</code>.</li>
+<li><strong>Desempenho:</strong> R² = 1,000000, MSE = 6,8942 × 10⁻²⁴ e MAE = 2,4310 × 10⁻¹². O ajuste é perfeito para a base fornecida.</li>
+<li><strong>Resíduos:</strong> praticamente nulos (10⁻¹²); não há evidência de padrão, heterocedasticidade ou outliers. Os testes de normalidade não são interpretáveis nessa escala.</li>
+<li><strong>Predição de 15 horas:</strong> <strong>1.000,00</strong> de área irrigada por ângulo.</li>
+<li><strong>Limitação principal:</strong> a base é determinística/simulada. Um R² = 1 não garante desempenho em condições de campo. Para decisões reais, recomenda-se:</li>
+<li>coletar dados com variabilidade real (clima, solo, umidade, vazão, eficiência do sistema);</li>
+<li>incluir variáveis explicativas adicionais;</li>
+<li>validar com validação cruzada e um conjunto de teste independente;</li>
+<li>monitorar resíduos ao longo do tempo e testar robustez a outliers;</li>
+<li>usar o modelo como apoio à decisão, não como substituto da avaliação agronômica.</li>
+<li><strong>Recomendação operacional:</strong> dentro do cenário modelado, 15 horas de irrigação correspondem a 1.000,00 de área irrigada por ângulo. Esse valor pode ser usado como referência inicial, mas deve ser confrontado com medições de campo antes de ser adotado como regra de manejo.</li>
+</ol>
+<hr />
+<h2>11. Checklist do projeto</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Tarefa da checklist</th>
+<th style="text-align: left;">Onde está</th>
+<th style="text-align: left;">Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">1. Carregar os dados de irrigação a partir de um CSV</td>
+<td style="text-align: left;">Seção 1</td>
+<td style="text-align: left;">✅ Concluído</td>
+</tr>
+<tr>
+<td style="text-align: left;">2. Visualizar os dados e as variáveis disponíveis</td>
+<td style="text-align: left;">Seções 1 e 3</td>
+<td style="text-align: left;">✅ Concluído</td>
+</tr>
+<tr>
+<td style="text-align: left;">3. Calcular as estatísticas descritivas</td>
+<td style="text-align: left;">Seção 2</td>
+<td style="text-align: left;">✅ Concluído</td>
+</tr>
+<tr>
+<td style="text-align: left;">4. Criar gráficos de dispersão</td>
+<td style="text-align: left;">Seção 3 (figuras 01–03)</td>
+<td style="text-align: left;">✅ Concluído</td>
+</tr>
+<tr>
+<td style="text-align: left;">5. Analisar a correlação entre as variáveis</td>
+<td style="text-align: left;">Seção 4 (figura 04)</td>
+<td style="text-align: left;">✅ Concluído</td>
+</tr>
+<tr>
+<td style="text-align: left;">6. Dividir os dados em treino e teste</td>
+<td style="text-align: left;">Seção 5</td>
+<td style="text-align: left;">✅ Concluído</td>
+</tr>
+<tr>
+<td style="text-align: left;">7. Treinar a regressão linear (X = horas, Y = área por ângulo)</td>
+<td style="text-align: left;">Seção 5</td>
+<td style="text-align: left;">✅ Concluído</td>
+</tr>
+<tr>
+<td style="text-align: left;">8. Imprimir a equação da reta</td>
+<td style="text-align: left;">Seção 5</td>
+<td style="text-align: left;">✅ Concluído</td>
+</tr>
+<tr>
+<td style="text-align: left;">9. Avaliar com MSE e MAE</td>
+<td style="text-align: left;">Seção 6</td>
+<td style="text-align: left;">✅ Concluído</td>
+</tr>
+<tr>
+<td style="text-align: left;">10. Visualizar resultados reais e preditos</td>
+<td style="text-align: left;">Seção 6 (figura 05)</td>
+<td style="text-align: left;">✅ Concluído</td>
+</tr>
+<tr>
+<td style="text-align: left;">11. Calcular e analisar os resíduos</td>
+<td style="text-align: left;">Seção 7 (figuras 06–07)</td>
+<td style="text-align: left;">✅ Concluído</td>
+</tr>
+<tr>
+<td style="text-align: left;">12. Verificar a normalidade dos resíduos</td>
+<td style="text-align: left;">Seção 8 (figura 08)</td>
+<td style="text-align: left;">✅ Concluído</td>
+</tr>
+<tr>
+<td style="text-align: left;">13. Fazer predições (exemplo: 15 horas)</td>
+<td style="text-align: left;">Seção 9 (figura 09)</td>
+<td style="text-align: left;">✅ Concluído</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Arquivos gerados</h3>
+<ul>
+<li><code>resultados/figuras/</code> — 9 figuras em PNG;</li>
+<li><code>resultados/tabelas/</code> — estatísticas, correlações, métricas, resíduos, testes e previsões em CSV;</li>
+<li><code>resultados/relatorio.md</code> — este relatório;</li>
+<li><code>resultados/relatorio.html</code> — versão para navegador e impressão em PDF;</li>
+<li><code>resultados/tabelas/resumo_modelo.txt</code> — coeficientes e equação do modelo.</li>
+</ul>
+</body>
+</html>

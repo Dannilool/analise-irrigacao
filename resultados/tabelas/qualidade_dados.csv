@@ -1,0 +1,4 @@
+﻿variavel;tipo;valores_ausentes;valores_unicos;minimo;maximo
+Horas de irrigação;int64;0;299;1,0;299,0
+Área irrigada;int64;0;299;100,0;29900,0
+Área irrigada por ângulo;float64;0;299;66,66666666666667;19933,333333333332

@@ -1,0 +1,4 @@
+﻿teste;estatistica;p_valor;decisao
+Shapiro-Wilk;0,843704903988442;1,9962737726380407e-06;Rejeita H₀ (não normal)
+D'Agostino-Pearson;3,35725009057269;0,18663040806708184;Não rejeita H₀ (compatível com normal)
+Jarque-Bera;2,7574774861598823;0,2518960584365786;Não rejeita H₀ (compatível com normal)
